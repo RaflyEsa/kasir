@@ -6,7 +6,8 @@ class HomePage extends StatefulWidget {
   final int userId;
   final String username;
 
-  const HomePage({Key? key, required this.userId, required this.username}) : super(key: key);
+  const HomePage({Key? key, required this.userId, required this.username})
+      : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -14,14 +15,35 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
+  List<Map<String, dynamic>> _products = [];
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _stockController = TextEditingController();
 
-  // Contoh data produk dan stok barang
-  final List<Map<String, dynamic>> _products = [
-    {'name': 'Produk A', 'price': 10000, 'stock': 20},
-    {'name': 'Produk B', 'price': 20000, 'stock': 15},
-    {'name': 'Produk C', 'price': 30000, 'stock': 10},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _fetchProducts(); // Fetch products when the page is loaded
+  }
 
+  // Fetch product data from Supabase
+  Future<void> _fetchProducts() async {
+    final response = await Supabase.instance.client
+        .from('produk') // Replace with your table name
+        .select()
+        .execute();
+
+    // Check if there's an error
+    if (response.error != null) {
+      print('Error fetching products: ${response.error?.message}');
+    } else {
+      setState(() {
+        _products = List<Map<String, dynamic>>.from(response.data);
+      });
+    }
+  }
+
+  // Logout confirmation dialog
   Future<void> _confirmLogout(BuildContext context) async {
     final shouldLogout = await showDialog<bool>(
       context: context,
@@ -52,64 +74,159 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Tambah atau Edit Produk
-  void _addOrEditProduct({Map<String, dynamic>? product, int? index}) {
-    final nameController = TextEditingController(text: product?['name'] ?? '');
-    final priceController = TextEditingController(text: product?['price']?.toString() ?? '');
-    final stockController = TextEditingController(text: product?['stock']?.toString() ?? '');
+  // Product card UI
+  Widget _buildProductCard(Map<String, dynamic> product, int index) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+      elevation: 4.0,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      product['name'],
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text('Rp${product['price']}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        )),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {},
+                          child: const Text('Beli'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                            textStyle: const TextStyle(fontSize: 12),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () {
+                                _editProduct(index);
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () {
+                                _deleteProduct(index);
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Page displaying product list
+  Widget _buildProductPage() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ListView.builder(
+        itemCount: _products.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: _buildProductCard(_products[index], index),
+          );
+        },
+      ),
+    );
+  }
+
+  // Transaction page
+  Widget _buildTransactionPage() {
+    return Center(
+      child: Text(
+        'Halaman Transaksi',
+        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  // Customer page
+  Widget _buildCustomerPage() {
+    return Center(
+      child: Text(
+        'Daftar Pelanggan',
+        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  // Edit product dialog
+  void _editProduct(int index) {
+    _nameController.text = _products[index]['name'];
+    _priceController.text = _products[index]['price'].toString();
+    _stockController.text = _products[index]['stock'].toString();
 
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(product == null ? 'Tambah Produk' : 'Edit Produk'),
+          title: const Text('Edit Produk'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                controller: nameController,
-                decoration: InputDecoration(labelText: 'Nama Produk'),
+                controller: _nameController,
+                decoration: const InputDecoration(labelText: 'Nama Produk'),
               ),
               TextField(
-                controller: priceController,
+                controller: _priceController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Harga'),
+                decoration: const InputDecoration(labelText: 'Harga Produk'),
               ),
               TextField(
-                controller: stockController,
+                controller: _stockController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Stok'),
+                decoration: const InputDecoration(labelText: 'Stok Produk'),
               ),
             ],
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
               child: const Text('Batal'),
             ),
             ElevatedButton(
               onPressed: () {
-                final name = nameController.text.trim();
-                final price = int.tryParse(priceController.text.trim()) ?? 0;
-                final stock = int.tryParse(stockController.text.trim()) ?? 0;
-
-                if (name.isNotEmpty && price > 0 && stock >= 0) {
-                  setState(() {
-                    if (product == null) {
-                      // Tambah produk baru
-                      _products.add({'name': name, 'price': price, 'stock': stock});
-                    } else if (index != null) {
-                      // Edit produk
-                      _products[index] = {'name': name, 'price': price, 'stock': stock};
-                    }
-                  });
-
-                  Navigator.pop(context);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Harap isi data produk dengan benar.')),
-                  );
-                }
+                setState(() {
+                  _products[index] = {
+                    'name': _nameController.text,
+                    'price': int.parse(_priceController.text),
+                    'stock': int.parse(_stockController.text),
+                  };
+                });
+                Navigator.of(context).pop();
               },
               child: const Text('Simpan'),
             ),
@@ -119,95 +236,87 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Hapus Produk
+  // Delete product dialog
   void _deleteProduct(int index) {
-    setState(() {
-      _products.removeAt(index);
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Produk berhasil dihapus.')),
-    );
-  }
-
-  Widget _buildHomePage() {
-    return Center(
-      child: Text(
-        'Halo, ${widget.username}! Selamat datang di aplikasi!',
-        style: const TextStyle(fontSize: 18),
-      ),
-    );
-  }
-
-  Widget _buildProductPage() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          ElevatedButton(
-            onPressed: () => _addOrEditProduct(),
-            child: const Text('Tambah Produk'),
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 16.0,
-                mainAxisSpacing: 16.0,
-                childAspectRatio: 1.2,
-              ),
-              itemCount: _products.length,
-              itemBuilder: (context, index) {
-                final product = _products[index];
-                return Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-                  elevation: 4.0,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Center(
-                          child: Text(
-                            product['name'],
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Harga: Rp${product['price']}'),
-                            Text('Stok: ${product['stock']} unit'),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () => _addOrEditProduct(product: product, index: index),
-                                  child: const Text('Edit'),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () => _deleteProduct(index),
-                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                                  child: const Text('Hapus'),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Hapus Produk'),
+          content: const Text('Apakah Anda yakin ingin menghapus produk ini?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Tidak'),
             ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _products.removeAt(index);
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Iya'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Add new product dialog
+  void _addProduct() {
+    _nameController.clear();
+    _priceController.clear();
+    _stockController.clear();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Tambah Produk'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _nameController,
+                decoration: const InputDecoration(labelText: 'Nama Produk'),
+              ),
+              TextField(
+                controller: _priceController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Harga Produk'),
+              ),
+              TextField(
+                controller: _stockController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Stok Produk'),
+              ),
+            ],
           ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _products.add({
+                    'name': _nameController.text,
+                    'price': int.parse(_priceController.text),
+                    'stock': int.parse(_stockController.text),
+                  });
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Tambah'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -215,23 +324,53 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Selamat datang, ${widget.username}!'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.exit_to_app),
-            onPressed: () => _confirmLogout(context),
-            tooltip: 'Logout',
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(2),
-          child: Container(
-            color: Colors.grey[300],
-            height: 2,
-          ),
+        title: Text(
+          _currentIndex == 0
+              ? 'Produk & Stok'
+              : _currentIndex == 1
+                  ? 'Transaksi'
+                  : 'Pelanggan',
         ),
       ),
-      body: _currentIndex == 0 ? _buildHomePage() : _buildProductPage(),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            UserAccountsDrawerHeader(
+              decoration: BoxDecoration(color: Colors.black87),
+              accountName: Text(widget.username),
+              accountEmail: Text('ID Pengguna: ${widget.userId}'),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.blue[600],
+                child: Icon(Icons.account_circle, size: 50),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Profil'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: Icon(Icons.exit_to_app),
+              title: Text('Logout'),
+              onTap: () {
+                _confirmLogout(context);
+              },
+            ),
+          ],
+        ),
+      ),
+      body: _currentIndex == 0
+          ? _buildProductPage()  // Display product page when index is 0
+          : _currentIndex == 1
+              ? _buildTransactionPage()
+              : _buildCustomerPage(),
+      floatingActionButton: _currentIndex == 0
+          ? FloatingActionButton(
+              onPressed: _addProduct,
+              child: const Icon(Icons.add),
+            )
+          : null,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -241,15 +380,23 @@ class _HomePageState extends State<HomePage> {
         },
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(Icons.inventory),
+            label: 'Produk & Stok',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart),
-            label: 'Produk & Stok',
+            label: 'Transaksi',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people),
+            label: 'Pelanggan',
           ),
         ],
       ),
     );
   }
+}
+
+extension on PostgrestFilterBuilder<PostgrestList> {
+  execute() {}
 }

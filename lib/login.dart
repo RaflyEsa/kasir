@@ -79,7 +79,7 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Welcome Back 👏', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                      Text('Welcome 👏', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
                       SizedBox(height: 8),
                       Text('Halaman Login Kasir', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
                       SizedBox(height: 24),
