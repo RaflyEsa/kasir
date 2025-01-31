@@ -27,17 +27,6 @@ class HalamanPelanggan extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return Card(
                     margin: EdgeInsets.symmetric(vertical: 8),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        child: Text('${index + 1}'),
-                      ),
-                      title: Text('Pelanggan ${index + 1}'),
-                      subtitle: Text('Email: pelanggan${index + 1}@example.com'),
-                      trailing: Icon(Icons.arrow_forward_ios),
-                      onTap: () {
-                        // Navigasi ke detail pelanggan
-                      },
-                    ),
                   );
                 },
               ),
