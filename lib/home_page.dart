@@ -29,7 +29,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   void initState() {
     super.initState();
     fetchProduk();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -87,39 +87,56 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     }
   }
 
- void showDeleteConfirmation(int id) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Konfirmasi Penghapusan'),
-        content: Text('Apakah Anda yakin ingin menghapus produk ini?'),
-        actions: <Widget>[
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white, backgroundColor: Colors.red, // Warna teks tombol
-            ),
-            child: Text('Tidak'),
-            onPressed: () {
-              Navigator.of(context).pop(); // Menutup dialog
-            },
+  void showDeleteConfirmation(int id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.blueGrey[50],
+          title: Text(
+            'Konfirmasi Penghapusan',
+            style: TextStyle(color: Colors.blueGrey[900]),
           ),
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white, backgroundColor: Colors.green, // Warna teks tombol
+          content: Text('Apakah Anda yakin ingin menghapus produk ini?'),
+          actions: <Widget>[
+            // Tombol Tidak
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.red, // Background red
+                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24), // Tombol lebih besar
+                minimumSize: Size(120, 48), // Ukuran minimum tombol
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text('Tidak', style: TextStyle(fontSize: 18)),
+              onPressed: () {
+                Navigator.of(context).pop(); // Menutup dialog
+              },
             ),
-            child: Text('Iya'),
-            onPressed: () {
-              deleteProduct(id);
-              Navigator.of(context).pop(); // Menutup dialog setelah menghapus
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
-
+            // Tombol Iya
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.green, // Background green
+                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24), // Tombol lebih besar
+                minimumSize: Size(120, 48), // Ukuran minimum tombol
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text('Iya', style: TextStyle(fontSize: 18)),
+              onPressed: () {
+                deleteProduct(id);
+                Navigator.of(context).pop(); // Menutup dialog setelah menghapus
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void logout() {
     Navigator.pushReplacement(
@@ -202,8 +219,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           Center(child: Text('Halaman Transaksi')),
           // Pelanggan Tab
           HalamanPelanggan(),
-          // Profil Tab
-          ProfilePage(username: widget.username, logout: logout),
         ],
       ),
       floatingActionButton: _currentIndex == 0
@@ -225,7 +240,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Transaksi'),
           BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Pelanggan'),
         ],
-        selectedItemColor: Colors.blue[300],
+        selectedItemColor: Colors.black,
         unselectedItemColor: Colors.black,
       ),
     );
@@ -241,33 +256,69 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(id == null ? 'Tambah Produk' : 'Edit Produk'),
+          backgroundColor: Colors.blueGrey[50],
+          title: Text(
+            id == null ? 'Tambah Produk' : 'Edit Produk',
+            style: TextStyle(color: Colors.blueGrey[900]),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: _nameController,
-                decoration: InputDecoration(labelText: 'Nama Produk'),
+                decoration: InputDecoration(
+                  labelText: 'Nama Produk',
+                  labelStyle: TextStyle(color: Colors.black),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),
+                  ),
+                ),
               ),
               TextField(
                 controller: _hargaController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Harga'),
+                decoration: InputDecoration(
+                  labelText: 'Harga',
+                  labelStyle: TextStyle(color: Colors.black),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),
+                  ),
+                ),
               ),
               TextField(
                 controller: _stokController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Stok'),
+                decoration: InputDecoration(
+                  labelText: 'Stok',
+                  labelStyle: TextStyle(color: Colors.black),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),
+                  ),
+                ),
               ),
             ],
           ),
           actions: [
+            // Tombol Batal
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Batal'),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.grey, // Background gray
+                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                minimumSize: Size(120, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Batal',
+                style: TextStyle(fontSize: 18),
+              ),
             ),
+            // Tombol Simpan / Perbarui
             TextButton(
               onPressed: () {
                 if (id == null) {
@@ -276,35 +327,23 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   updateProduct(id);
                 }
               },
-              child: Text(id == null ? 'Tambah' : 'Perbarui'),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.green, // Background blue
+                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                minimumSize: Size(120, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                id == null ? 'Tambah' : 'Perbarui',
+                style: TextStyle(fontSize: 18),
+              ),
             ),
           ],
         );
       },
-    );
-  }
-}
-
-class ProfilePage extends StatelessWidget {
-  final String username;
-  final VoidCallback logout;
-
-  const ProfilePage({super.key, required this.username, required this.logout});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: ListView(
-        children: [
-          ListTile(
-            leading: Icon(Icons.account_circle, size: 50),
-            title: Text(username, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            subtitle: Text('Profil Pengguna'),
-          ),
-          Divider(),
-        ],
-      ),
     );
   }
 }

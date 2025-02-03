@@ -17,7 +17,8 @@ class _LoginPageState extends State<LoginPage> {
 
     if (username.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Username dan password tidak boleh kosong.')),
+        const SnackBar(
+            content: Text('Username dan password tidak boleh kosong.')),
       );
       return;
     }
@@ -40,11 +41,14 @@ class _LoginPageState extends State<LoginPage> {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomePage(userId: userId, username: userName)),
+          MaterialPageRoute(
+              builder: (context) =>
+                  HomePage(userId: userId, username: userName)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login gagal. Username atau password salah.')),
+          const SnackBar(
+              content: Text('Login gagal. Username atau password salah.')),
         );
       }
     } catch (e) {
@@ -59,12 +63,13 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Column(
         children: [
+          // Gambar Header (Kasir)
           Container(
-            width: double.infinity,
-            height: MediaQuery.of(context).size.height * 0.35,
-            decoration: BoxDecoration(
+            width: 200,
+            height: 200, // Mengurangi ukuran menjadi 25% dari tinggi layar
+            decoration: const BoxDecoration(
               image: DecorationImage(
-                image: NetworkImage('https://cdn.pixabay.com/photo/2022/01/11/17/04/city-6931092_1280.jpg'),
+                image: AssetImage('assets/images/kasir.png'), // Gambar kasir
                 fit: BoxFit.cover,
               ),
             ),
@@ -74,47 +79,101 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.all(16.0),
               child: Center(
                 child: Container(
-                  constraints: BoxConstraints(maxWidth: 400),
+                  constraints: const BoxConstraints(maxWidth: 400),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Welcome 👏', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-                      SizedBox(height: 8),
-                      Text('Halaman Login Kasir', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
-                      SizedBox(height: 24),
+                      // Teks Header
+                      const Text(
+                        'Welcome 👏',
+                        style: TextStyle(
+                            fontSize: 28, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Halaman Login Kasir',
+                        style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Input Username
                       TextField(
                         controller: _usernameController,
                         decoration: InputDecoration(
                           labelText: 'Username',
-                          border: OutlineInputBorder(
+                          labelStyle:
+                              const TextStyle(color: Colors.grey), // Default
+                          floatingLabelStyle: const TextStyle(
+                              color: Colors.black), // Saat fokus
+                          focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
+                            borderSide:
+                                const BorderSide(color: Colors.black, width: 2),
                           ),
-                          prefixIcon: Icon(Icons.people),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(color: Colors.grey),
+                          ),
+                          prefixIcon:
+                              const Icon(Icons.people, color: Colors.black),
                         ),
+                        cursorColor: Colors.black,
+                        style: const TextStyle(
+                            color: Colors.black), // Warna teks saat diketik
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
+
+                      // Input Password
                       TextField(
                         controller: _passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           labelText: 'Password',
-                          border: OutlineInputBorder(
+                          labelStyle: const TextStyle(color: Colors.grey),
+                          floatingLabelStyle:
+                              const TextStyle(color: Colors.black),
+                          focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
+                            borderSide:
+                                const BorderSide(color: Colors.black, width: 2),
                           ),
-                          prefixIcon: Icon(Icons.lock),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(color: Colors.grey),
+                          ),
+                          prefixIcon:
+                              const Icon(Icons.lock, color: Colors.black),
                         ),
+                        cursorColor: Colors.black,
+                        style: const TextStyle(color: Colors.black),
                       ),
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
+
+                      // Tombol Login
                       SizedBox(
                         width: double.infinity,
-                        height: 50,
+                        height: 45, // Sedikit lebih kecil agar lebih elegan
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            backgroundColor:
+                                Colors.blue[400], // Warna soft biru
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                  8), // Sudut tidak terlalu bulat
+                            ),
+                            elevation: 3, // Efek bayangan
                           ),
                           onPressed: _login,
-                          child: Text('Login', style: TextStyle(fontSize: 18)),
+                          child: const Text(
+                            'Login',
+                            style: TextStyle(
+                              fontSize:
+                                  16, // Lebih kecil agar tidak terlalu besar
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
                       ),
                     ],
